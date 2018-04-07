@@ -2,11 +2,20 @@
 #define GAME_HPP
 
 #include "Player.hpp"
+#include "Enemy.hpp"
+#include "Missile.hpp"
 #include <ncurses.h>
 
+#define UP_ARROW 259
+#define DOWN_ARROW 258
+#define LEFT_ARROW 260
+#define RIGHT_ARROW 261
+#define SPACE_KEY 32
 const int gMaxWidth = 100;
 const int gMaxHeight = 30;
-const int gMaxMissiles = 5;
+const int gMaxMissiles = 100;
+const int gMaxEnemies = 100;
+const int gSpawnRate = 10;
 
 enum EntityType {
     PLAYER,
@@ -43,10 +52,19 @@ private:
     Game& operator=(const Game& that);
 
     WINDOW* _win;
+	GameEntity* _rmap[gMaxHeight][gMaxWidth];
     EntityType _map[gMaxHeight][gMaxWidth];
     Player _player;
-    // Enemy* _enemies;
-    // Missile* _missiles; // player's missiles
+	Enemy* _enemies[gMaxEnemies];
+	Missile* _missiles[gMaxMissiles];
+	void	resetMoved();
+	void	spawnEnemy();
+	void	moveEntities();
+	void	rmDelay();
+	void	move(Player &e, int key);
+	void	move(GameEntity *e, int x, int y);
+	void	action(int key);
+	void	shoot(GameEntity &e, int direction);
 
 };
 
