@@ -9,7 +9,7 @@ Game* Game::_instance = NULL;
 Game::Game()
     : _player(1, 15)
 {
-    bzeroMap();
+    bzeroMap();             // 
     initscr();              // ncurses allocs all it needs
     curs_set(0);            // erase cursor
     cbreak();               // one-character-a-time. Disable the buffering of typed characters
@@ -43,17 +43,16 @@ void Game::run()
     drawFrame()
     while(_player.isAlive())
     {
-        // read input
-        // move player
+        // read input with getch()
+        // move player,         check horizontal collide
         // create new enemy
-        // move missiles
-        // move enemies
-        // destroy enemies
-        // destroy bullets
+        // move missiles,       check collide
+        // move enemies,        check collide Ox Oy
+        // destroy enemies out of screen
+        // destroy missiles out of screen
         // draw _map[][] to screen
         // sleep
     }
-
 }
 
 void Game::bzeroMap()
@@ -64,6 +63,3 @@ void Game::bzeroMap()
         }
     }
 }
-
-
-void Game::run()

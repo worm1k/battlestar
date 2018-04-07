@@ -5,6 +5,7 @@
 
 const int gMaxWidth = 100;
 const int gMaxHeight = 30;
+const int gMaxMissiles = 5;
 
 enum EntityType {
     PLAYER,
@@ -22,7 +23,6 @@ public:
 
 private:
 
-
     void bzeroMap();
 
     static Game* _instance;
@@ -32,6 +32,9 @@ private:
 
     EntityType _map[gMaxHeight][gMaxWidth];
     Player _player;
+    Enemy* _enemies;
+    Missile* _missiles; // player's missiles
+
 };
 
 #endif // GAME_HPP
