@@ -1,18 +1,17 @@
 #include "Game.hpp"
+#include <stddef.h>
 
-const int gMaxWidth = 100;
-const int gMaxHeight = 30;
-Game* Game::instance = nullptr;
+Game* Game::_instance = NULL;
 
 Game::Game()
 {
     bzeroMap();
 }
 
-static Game* getInstance()
+Game* Game::getInstance()
 {
-    if (_instance == nullptr) {
-        instance = new Game();
+    if (_instance == NULL) {
+        _instance = new Game();
     }
 
     return _instance;

@@ -1,8 +1,8 @@
 #ifndef GAME_HPP
 #define GAME_HPP
 
-extern const int gMaxWidth;
-extern const int gMaxHeight;
+const int gMaxWidth = 100;
+const int gMaxHeight = 30;
 
 enum EntityType {
     PLAYER,
@@ -20,12 +20,15 @@ public:
 
 private:
 
+
+    void bzeroMap();
+
     static Game* _instance;
     Game();
     Game(const Game& that);
     Game& operator=(const Game& that);
 
-    EntityType _map[kIntHeight][kIntWidth];
+    EntityType _map[gMaxHeight][gMaxWidth];
 };
 
 #endif // GAME_HPP

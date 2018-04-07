@@ -3,32 +3,48 @@
 GameEntity::GameEntity()
     : _x(0)
     , _y(0)
-    , _hp(0)
 {}
 
 
-GameEntity::GameEntity(const int x, const int y, const int hp)
+GameEntity::GameEntity(const int x, const int y)
     : _x(x)
     , _y(y)
-    , _hp(hp)
 {}
 
 GameEntity::GameEntity(const GameEntity& that)
     : _x(that.getX())
     , _y(that.getY())
-    , _hp(that.getHP())
 {}
 
 GameEntity::~GameEntity()
 {}
 
-GameEntity& operator=(const GameEntity& that)
+GameEntity& GameEntity::operator=(const GameEntity& that)
 {
     if (this != &that)
     {
         _x = that.getX();
         _y = that.getY();
-        _hp = that.getHP();
     }
     return *this;
+}
+
+const int GameEntity::getX() const
+{
+    return _x;
+}
+
+const int GameEntity::getY() const
+{
+    return _y;
+}
+
+void GameEntity::setX(const int x)
+{
+    _x = x;
+}
+
+void GameEntity::setY(const int y)
+{
+    _y = y;
 }
