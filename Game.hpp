@@ -1,6 +1,8 @@
 #ifndef GAME_HPP
 #define GAME_HPP
 
+#include "Player.hpp"
+
 const int gMaxWidth = 100;
 const int gMaxHeight = 30;
 
@@ -29,6 +31,7 @@ private:
     Game& operator=(const Game& that);
 
     EntityType _map[gMaxHeight][gMaxWidth];
+    Player _player;
 };
 
 #endif // GAME_HPP

@@ -12,13 +12,16 @@ public:
 
     const int getX() const;
     const int getY() const;
+    const bool isAlive() const;
 
     void setX(const int x);
     void setY(const int y);
+    void setAlive(const bool alive);
 
 private:
     int _x;
     int _y;
+    bool _isAlive;
 };
 
 #endif // GAMEENTITY_HPP
