@@ -2,6 +2,7 @@
 #define GAME_HPP
 
 #include "Player.hpp"
+#include <ncurses.h>
 
 const int gMaxWidth = 100;
 const int gMaxHeight = 30;
@@ -14,6 +15,14 @@ enum EntityType {
     SPACE,
 };
 
+enum ColorType {
+    COLOR_ENEMY = 2,
+    COLOR_PLAYER,
+    COLOR_MISSILE,
+    COLOR_SPACE,
+    COLOR_BORDER,
+};
+
 class Game
 {
 public:
@@ -24,16 +33,20 @@ public:
 private:
 
     void bzeroMap();
+    void initColors();
+    void drawMapArray();
+    void drawBorders();
 
     static Game* _instance;
     Game();
     Game(const Game& that);
     Game& operator=(const Game& that);
 
+    WINDOW* _win;
     EntityType _map[gMaxHeight][gMaxWidth];
     Player _player;
-    Enemy* _enemies;
-    Missile* _missiles; // player's missiles
+    // Enemy* _enemies;
+    // Missile* _missiles; // player's missiles
 
 };
 

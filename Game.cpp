@@ -1,7 +1,6 @@
 #include "Game.hpp"
 #include <unistd.h>
 #include <stddef.h>
-#include <curses.h>
 #include <stdlib.h>
 
 Game* Game::_instance = NULL;
@@ -20,7 +19,7 @@ Game::Game()
                             //      KEY_UP
                             //      KEY_LEFT
                             //      KEY_RIGHT
-    // assign colors
+    initColors();
 }
 
 Game::~Game()
@@ -38,9 +37,19 @@ Game* Game::getInstance()
     return _instance;
 }
 
+void Game::initColors()
+{
+    start_color();
+    init_pair(COLOR_ENEMY, COLOR_YELLOW, COLOR_BLACK);
+    init_pair(COLOR_PLAYER, COLOR_RED, COLOR_BLACK);
+    init_pair(COLOR_MISSILE, COLOR_CYAN, COLOR_BLACK);
+    init_pair(COLOR_SPACE, 16, 16);
+    init_pair(COLOR_BORDER, 241, 241);
+}
+
 void Game::run()
 {
-    drawFrame()
+    drawBorders();
     while(_player.isAlive())
     {
         // read input with getch()
@@ -52,6 +61,7 @@ void Game::run()
         // destroy missiles out of screen
         // draw _map[][] to screen
         // sleep
+        refresh();
     }
 }
 
@@ -63,3 +73,56 @@ void Game::bzeroMap()
         }
     }
 }
+
+void Game::drawMapArray()
+{
+}
+
+void Game::drawBorders()
+{
+    attron(COLOR_PAIR(COLOR_BORDER));
+    // top
+    for (int x = 0, y = 0; x < gMaxWidth + 2; ++x) {
+        mvprintw(y, x, "#");
+    }
+    // bottom
+    for (int x = 0, y = gMaxHeight + 1; x < gMaxWidth + 2; ++x) {
+        mvprintw(y, x, "#");
+    }
+    // left
+    for (int x = 0, y = 1; y < gMaxHeight + 1; ++y) {
+        mvprintw(y, x, "#");
+    }
+    // right
+    for (int x = gMaxWidth + 1, y = 1; y < gMaxHeight + 1; ++y) {
+        mvprintw(y, x, "#");
+    }
+    attroff(COLOR_PAIR(COLOR_BORDER));
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
