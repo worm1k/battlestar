@@ -124,8 +124,8 @@ void Game::bzeroMap()
 }
 
 void Game::moveEntities() {
-	for (int y = 0; y < gMaxHeight; ++y)
-		for (int x = 0; x < gMaxWidth; ++x)
+	for (int x = 0; x < gMaxWidth; ++x)
+		for (int y = 0; y < gMaxHeight; ++y)
 		{
 			if (_rmap[y][x] == NULL || _rmap[y][x]->getType() == "player" || _rmap[y][x]->hasMoved())
 				continue ;
@@ -228,42 +228,29 @@ void Game::move(Player &e, int key) {
 }
 
 void Game::move(GameEntity *e, int x, int y) {
-	//std::cout << "1" << std::endl;
 	if (x + e->getDir() < 0 || x + e->getDir() > gMaxWidth - 1)
 	{
-	//	std::cout << "2" << std::endl;
 		delete _rmap[y][x];
 		_rmap[y][x] = NULL;
 	}
 	else if (_rmap[y][x + e->getDir()] != NULL)
 	{
-	//	std::cout << "3" << std::endl;
 		if (_rmap[y][x + e->getDir()]->getType() == "player")
 			_player.setAlive(false);
-		else if (!_rmap[y][x + e->getDir()]->hasMoved() && _rmap[y][x]->getDir() + _rmap[y][x + e->getDir()]->getDir() != 0) {
-	//		std::cout << "4" << std::endl;
-			move(_rmap[y][x + e->getDir()], x + e->getDir() + _rmap[y][x + e->getDir()]->getDir(), y);
-	//		std::cout << "5" << std::endl;
+		else if (!_rmap[y][x + e->getDir()]->hasMoved() && _rmap[y][x]->getDir() + _rmap[y][x + e->getDir()]->getDir() != 0)
+			move(_rmap[y][x + e->getDir()], x + e->getDir(), y);
+		else {
+			delete _rmap[y][x + e->getDir()];
+			_rmap[y][x + e->getDir()] = NULL;
+			delete _rmap[y][x];
+			_rmap[y][x] = NULL;
 		}
-//		else {
-//			delete _rmap[y][x + e->getDir()];
-//			_rmap[y][x + e->getDir()] = NULL;
-//			delete _rmap[y][x];
-//			_rmap[y][x] = NULL;
-//		}
 	}
 	else
 	{
-		if (_rmap[y][x] == NULL || x < 0 || x > gMaxWidth - 1 || y < 0 || y > gMaxHeight - 1)
-			return ;
-	//	std::cout << "6" << std::endl;
 		_rmap[y][x]->setMoved(true);
-	//	std::cout << _rmap[y][x]->hasMoved() << std::endl;
 		_rmap[y][x + e->getDir()] = _rmap[y][x];
-	//	std::cout << "8" << std::endl;
-	//	std::cout << "9" << std::endl;
 		_rmap[y][x] = NULL;
-	//	std::cout << "a" << std::endl;
 	}
 	return ;
 }
