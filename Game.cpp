@@ -14,6 +14,7 @@ Game::Game()
     cbreak();               // one-character-a-time. Disable the buffering of typed characters
     noecho();               // suppress the automatic echoing from stdin
     nodelay(stdscr, TRUE);  // return ERR if the key input is not ready
+	set_escdelay(25);
     keypad(stdscr, TRUE);   // handle arrow keys with
                             //      KEY_DOWN
                             //      KEY_UP
@@ -63,9 +64,9 @@ void Game::run()
 	drawMapArray();
     while(_player.isAlive())
     {
+		c = getch();
 		resetMoved();
 		// read input with getch()
-		c = getch();
 		// move player
 		if (c != -1)
 			action(c);
