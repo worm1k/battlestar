@@ -43,7 +43,7 @@ private:
 
     void bzeroMap();
     void initColors();
-    void drawMapArray();
+    void drawMapArray(time_t seconds_elapsed);
     void drawBorders();
 
     static Game* _instance;
@@ -51,16 +51,16 @@ private:
     Game(const Game& that);
     Game& operator=(const Game& that);
 
-    WINDOW* _win;
 	GameEntity* _rmap[gMaxHeight][gMaxWidth];
     EntityType _map[gMaxHeight][gMaxWidth];
     Player _player;
 	Enemy* _enemies[gMaxEnemies];
 	Missile* _missiles[gMaxMissiles];
+	int		_score;
 	void	resetMoved();
 	void	spawnEnemy();
 	void	moveEntities();
-	void	rmDelay();
+	void	sleepGame();
 	void	move(Player &e, int key);
 	void	move(GameEntity *e, int x, int y);
 	void	action(int key);

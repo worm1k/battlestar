@@ -9,6 +9,9 @@ GameEntity::GameEntity(const int x, const int y, const int dir, const std::strin
 	, _type(type)
 {}
 
+GameEntity::~GameEntity()
+{}
+
 GameEntity::GameEntity(const GameEntity& that)
     : _x(that.getX())
     , _y(that.getY())

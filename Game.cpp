@@ -3,10 +3,12 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <iostream>
+#include <ctime>
 Game* Game::_instance = NULL;
 
 Game::Game()
     : _player(1, 15)
+    , _score(0)
 {
     bzeroMap();             // 
     initscr();              // ncurses allocs all it needs
@@ -61,9 +63,10 @@ void Game::run()
     drawBorders();
 	bzeroMap();
 	_rmap[_player.getY()][_player.getX()] = &_player;
-	drawMapArray();
+	drawMapArray(0);
     while(_player.isAlive())
     {
+        const static time_t start_time = std::time(NULL);
 		c = getch();
 		resetMoved();
 		// read input with getch()
@@ -77,10 +80,10 @@ void Game::run()
 		// destroy missiles out of screen
 		moveEntities();
         // draw _map[][] to screen
-		drawMapArray();
+		drawMapArray(std::time(NULL) - start_time);
         // sleep
         refresh();
-		rmDelay();
+		sleepGame();
     }
 }
 
@@ -111,8 +114,8 @@ void Game::spawnEnemy() {
 		_player.setAlive(false);
 }
 
-void Game::rmDelay() {
-	nodelay(stdscr, TRUE);
+void Game::sleepGame()
+{
 	double pause = 1.0 / 30;
 	usleep(pause * 1000000.0);
 }
@@ -135,7 +138,7 @@ void Game::moveEntities() {
 		}
 }
 
-void Game::drawMapArray()
+void Game::drawMapArray(time_t seconds_elapsed)
 {
 	for (int x = 0; x < gMaxWidth; x++)
 		for (int y = 0; y < gMaxHeight; y++)
@@ -160,6 +163,8 @@ void Game::drawMapArray()
 			}
 
 		}
+    mvprintw(gMaxHeight + 2, 0, "Score: %d", _score);
+    mvprintw(gMaxHeight + 2, gMaxWidth - 10, "Time: %d", seconds_elapsed);
 }
 
 void Game::drawBorders()
@@ -245,6 +250,7 @@ void Game::move(GameEntity *e, int x, int y) {
 			_rmap[y][x + e->getDir()] = NULL;
 			delete _rmap[y][x];
 			_rmap[y][x] = NULL;
+			_score += 1;
 		}
 	}
 	else

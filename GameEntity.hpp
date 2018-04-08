@@ -8,7 +8,7 @@ class GameEntity
 public:
     GameEntity(const int x, const int y, const int dir, const std::string type);
     GameEntity(const GameEntity& that);
-    virtual ~GameEntity() {}
+    virtual ~GameEntity() = 0;
     GameEntity& operator=(const GameEntity& that);
 
     int getX() const;
