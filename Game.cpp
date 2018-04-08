@@ -196,10 +196,10 @@ void Game::shoot(GameEntity &e, int direction) {
 	if (_rmap[e.getY()][e.getX() + direction] == NULL) {
 		_rmap[e.getY()][e.getX() + direction] = new Missile(e.getX() + direction, e.getY(), direction);
 	}
-/*	else {
+	else {
 		delete _rmap[e.getY()][e.getX() + direction];
 		_rmap[e.getY()][e.getX() + direction] = NULL;
-	}*/
+	}
 }
 
 void Game::move(Player &e, int key) {
