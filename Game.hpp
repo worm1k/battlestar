@@ -4,6 +4,7 @@
 #include "Player.hpp"
 #include "Enemy.hpp"
 #include "Missile.hpp"
+#include "Scenery.hpp"
 #include <ncurses.h>
 
 #define UP_ARROW 259
@@ -11,6 +12,8 @@
 #define LEFT_ARROW 260
 #define RIGHT_ARROW 261
 #define SPACE_KEY 32
+#define PLUS_KEY 61
+#define MINUS_KEY 45
 const int gMaxWidth = 100;
 const int gMaxHeight = 30;
 const int gMaxMissiles = 100;
@@ -22,6 +25,7 @@ enum EntityType {
     ENEMY,
     MISSILE,
     SPACE,
+	SCENERY,
 };
 
 enum ColorType {
@@ -30,6 +34,7 @@ enum ColorType {
     COLOR_MISSILE,
     COLOR_SPACE,
     COLOR_BORDER,
+	COLOR_SCENERY,
 };
 
 class Game
@@ -38,6 +43,8 @@ public:
     ~Game();
     static Game* getInstance();
     void run();
+	void incSpeed();
+	void decSpeed();
 
 private:
 
@@ -57,14 +64,19 @@ private:
 	Enemy* _enemies[gMaxEnemies];
 	Missile* _missiles[gMaxMissiles];
 	int		_score;
+	int		_speed;
+	int		_bullets;
 	void	resetMoved();
 	void	spawnEnemy();
+	void	spawnScenery();
 	void	moveEntities();
 	void	sleepGame();
 	void	move(Player &e, int key);
 	void	move(GameEntity *e, int x, int y);
 	void	action(int key);
 	void	shoot(GameEntity &e, int direction);
+	void	eshoot(GameEntity &e, int x, int y, int direction);
+	void	handleCollision(GameEntity **e1, GameEntity **e2);
 
 };
 

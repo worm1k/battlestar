@@ -1,31 +1,31 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   Missile.hpp                                        :+:      :+:    :+:   */
+/*   Scenery.hpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: ddenkin <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/04/07 16:55:21 by ddenkin           #+#    #+#             */
-/*   Updated: 2018/04/08 15:48:38 by ddenkin          ###   ########.fr       */
+/*   Updated: 2018/04/08 20:01:06 by ddenkin          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef MISSILE_HPP
-#define MISSILE_HPP
+#ifndef SCENERY_HPP
+#define SCENERY_HPP
 
 #include "GameEntity.hpp"
 
-class	Missile: public GameEntity
+class	Scenery: public GameEntity
 {
 public:
-	Missile(const int x, const int y, const int dir, const int team);
-	Missile(Missile const &e);
-	virtual ~Missile();
+	Scenery(const int x, const int y, const int dir);
+	Scenery(Scenery const &e);
+	virtual ~Scenery();
 
-	Missile& operator=(Missile &e);
+	Scenery& operator=(Scenery &e);
 protected:
 private:
-	Missile();
+	Scenery();
 };
 
 #endif

@@ -1,12 +1,13 @@
 #include "GameEntity.hpp"
 
-GameEntity::GameEntity(const int x, const int y, const int dir, const std::string type)
+GameEntity::GameEntity(const int x, const int y, const int dir, const std::string type, const int team)
     : _x(x)
     , _y(y)
 	, _dir(dir)
     , _isAlive(true)
 	, _hasMoved(0)
 	, _type(type)
+	, _team(team)
 {}
 
 GameEntity::~GameEntity()
@@ -19,6 +20,7 @@ GameEntity::GameEntity(const GameEntity& that)
     , _isAlive(that.isAlive())
 	, _hasMoved(0)
     , _type(that.getType())
+	, _team(that.getTeam())
 {}
 
 GameEntity& GameEntity::operator=(const GameEntity& that)
@@ -30,6 +32,8 @@ GameEntity& GameEntity::operator=(const GameEntity& that)
 		_dir = that.getDir();
         _isAlive = that.isAlive();
 		_hasMoved = that._hasMoved;
+		_type = that.getType();
+		_team = that.getTeam();
     }
     return *this;
 }
@@ -61,6 +65,10 @@ bool GameEntity::hasMoved() const {
 	return _hasMoved;
 }
 
+int GameEntity::getTeam() const {
+	return _team;
+}
+
 void GameEntity::setX(const int x)
 {
     _x = x;
@@ -86,4 +94,8 @@ void GameEntity::setType(std::string type) {
 
 void GameEntity::setMoved(const bool moved) {
 	_hasMoved = moved;
+}
+
+void GameEntity::setTeam(const int team) {
+	_team = team;
 }

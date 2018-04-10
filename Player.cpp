@@ -1,7 +1,7 @@
 #include "Player.hpp"
 
 Player::Player(const int x, const int y)
-	: GameEntity(x, y, 0, "player")
+	: GameEntity(x, y, 0, "player", 0)
 {}
 
 Player::Player(const Player& that)
@@ -18,6 +18,7 @@ Player& Player::operator=(const Player& that)
 		setY(that.getY());
 		setAlive(that.isAlive());
 		setDir(that.getDir());
+		setTeam(that.getTeam());
 	}
 	return (*this);
 }

@@ -4,11 +4,14 @@
 #include <stdlib.h>
 #include <iostream>
 #include <ctime>
+#include <sys/time.h>
 Game* Game::_instance = NULL;
 
 Game::Game()
     : _player(1, 15)
     , _score(0)
+	, _speed(4)
+	, _bullets(100)
 {
     bzeroMap();             // 
     initscr();              // ncurses allocs all it needs
@@ -34,8 +37,8 @@ Game::~Game()
 				_rmap[y][x] = NULL;
 			}
     endwin();
-	system("clear");
-	std::cout << "Game Over! You suck. Better luck next time!" << std::endl;
+	system("reset");
+	std::cout << "Game Over! " << ((_score < 100) ? "You suck. " : "") << "Better luck next time! Your score is " << _score << "!" << std::endl;
 }
 
 Game* Game::getInstance()
@@ -54,36 +57,38 @@ void Game::initColors()
     init_pair(COLOR_MISSILE, COLOR_CYAN, COLOR_BLACK);
     init_pair(COLOR_SPACE, 16, 16);
     init_pair(COLOR_BORDER, 241, 241);
+	init_pair(COLOR_SCENERY, COLOR_WHITE, COLOR_BLACK);
 }
 
 void Game::run()
 {
 	int c;
+	int	times = 0;
 
     drawBorders();
 	bzeroMap();
 	_rmap[_player.getY()][_player.getX()] = &_player;
 	drawMapArray(0);
+	const static time_t start_time = std::time(NULL);
+
+	struct timeval te;
+	spawnScenery();
     while(_player.isAlive())
     {
-        const static time_t start_time = std::time(NULL);
+		gettimeofday(&te, NULL);
+		long long mstart = te.tv_sec * 1000LL + te.tv_usec/1000;
+
+		(++times % 75 == 0) ? ++_bullets : 0;
 		c = getch();
 		resetMoved();
-		// read input with getch()
-		// move player
 		if (c != -1)
 			action(c);
-        // create new enemy
 		spawnEnemy();
-		// move entities
-		// destroy enemies out of screen
-		// destroy missiles out of screen
 		moveEntities();
-        // draw _map[][] to screen
 		drawMapArray(std::time(NULL) - start_time);
-        // sleep
         refresh();
-		sleepGame();
+		long long mend = te.tv_sec * 1000LL + te.tv_usec/1000;
+		usleep(50000 / _speed - (mend - mstart));
     }
 }
 
@@ -100,6 +105,13 @@ void Game::resetMoved()
 		}
 }
 
+void Game::spawnScenery() {
+	for (int y = 0; y < gMaxHeight; ++y)
+		for (int x = 0; x < gMaxWidth; ++x)
+			if (_rmap[y][x] == NULL && rand() % 200 == 1)
+				_rmap[y][x] = new Scenery(x, y, 0);
+}
+
 void Game::spawnEnemy() {
 	int ran;
 	int	ran2;
@@ -112,12 +124,6 @@ void Game::spawnEnemy() {
 		_rmap[ran][gMaxWidth - 1] = new Enemy(ran, gMaxWidth - 1, -1);
 	else if (_rmap[ran][gMaxWidth - 1]->getType() == "player")
 		_player.setAlive(false);
-}
-
-void Game::sleepGame()
-{
-	double pause = 1.0 / 30;
-	usleep(pause * 1000000.0);
 }
 
 void Game::bzeroMap()
@@ -161,9 +167,17 @@ void Game::drawMapArray(time_t seconds_elapsed)
 				mvprintw(y + 1, x + 1, "-");
 				attroff(COLOR_PAIR(COLOR_MISSILE));
 			}
+			else if (_rmap[y][x]->getType() == "scenery")
+			{
+				attron(COLOR_PAIR(COLOR_SCENERY));
+				mvprintw(y + 1, x + 1, "O");
+				attroff(COLOR_PAIR(COLOR_SCENERY));
+			}
 
 		}
     mvprintw(gMaxHeight + 2, 0, "Score: %d", _score);
+	mvprintw(gMaxHeight + 2, gMaxWidth - 90, "Speed: %2d", _speed);
+	mvprintw(gMaxHeight + 2, gMaxWidth - 80, "Bullets: %3d", _bullets);
     mvprintw(gMaxHeight + 2, gMaxWidth - 10, "Time: %d", seconds_elapsed);
 }
 
@@ -193,18 +207,61 @@ void Game::action(int key) {
 	if (key >= DOWN_ARROW && key <= RIGHT_ARROW)
 		move(_player, key);
 	else if (key == SPACE_KEY)
-		shoot(_player, 1);
+		shoot(_player, 2);
+	else if (key == PLUS_KEY)
+		incSpeed();
+	else if (key == MINUS_KEY)
+		decSpeed();
+}
+
+void Game::handleCollision(GameEntity **e1, GameEntity **e2) {
+	if ((*e1)->getDir() * (*e2)->getDir() < 0 && (*e1)->getTeam() != 2)
+	{
+		if (((*e1)->getType() == "missile") != ((*e2)->getType() == "missile")) {
+			_score += 10;
+			_bullets += 3;
+		}
+			delete *e1;
+			*e1 = NULL;
+			delete *e2;
+			*e2 = NULL;
+	}
+	else
+	{
+		delete *e2;
+		*e2 = NULL;
+	}
 }
 
 void Game::shoot(GameEntity &e, int direction) {
-	if (e.getX() + direction < 0 || e.getX() + direction > gMaxWidth - 1)
+	if (e.getX() + 1 < 0 || e.getX() + 1 > gMaxWidth - 1)
 		return ;
-	if (_rmap[e.getY()][e.getX() + direction] == NULL) {
-		_rmap[e.getY()][e.getX() + direction] = new Missile(e.getX() + direction, e.getY(), direction);
+	if (_rmap[e.getY()][e.getX() + 1] == NULL) {
+		if (_bullets > 0) {
+			_rmap[e.getY()][e.getX() + 1] = new Missile(e.getX() + 1, e.getY(), direction * (1 + rand() % 2), 0);
+			--_bullets;
+		}
 	}
-	else {
-		delete _rmap[e.getY()][e.getX() + direction];
-		_rmap[e.getY()][e.getX() + direction] = NULL;
+	else if (_rmap[e.getY()][e.getX() + 1]->getType() != "scenery"){
+		delete _rmap[e.getY()][e.getX() + 1];
+		_rmap[e.getY()][e.getX() + 1] = NULL;
+	}
+}
+
+void Game::eshoot(GameEntity &e, int x, int y, int direction) {
+	int             ran;
+
+	(void)e;
+	ran = rand() % 100;
+	if (ran < 95)
+		return ;
+	if (x + direction < 0 || x + direction > gMaxWidth - 1)
+		return ;
+	if (_rmap[y][x + direction] == NULL)
+		_rmap[y][x + direction] = new Missile(x + direction, y, direction * 2, 1);
+	else if (_rmap[y][x + direction]->getType() != "scenery"){
+		delete _rmap[y][x + direction];
+		_rmap[y][x + direction] = NULL;
 	}
 }
 
@@ -234,57 +291,48 @@ void Game::move(Player &e, int key) {
 }
 
 void Game::move(GameEntity *e, int x, int y) {
-	if (x + e->getDir() < 0 || x + e->getDir() > gMaxWidth - 1)
+	if (e->getType() == "enemy")
+		eshoot(*e, x, y, (e->getDir() > 0) ? 1 : -1);
+	int     ch = (e->getDir() > 0) ? 1 : -1;
+
+	for (int i = ch; (ch > 0) ? i <= e->getDir() : i >= e->getDir(); i += ch)
 	{
-		delete _rmap[y][x];
-		_rmap[y][x] = NULL;
-	}
-	else if (_rmap[y][x + e->getDir()] != NULL)
-	{
-		if (_rmap[y][x + e->getDir()]->getType() == "player")
-			_player.setAlive(false);
-		else if (!_rmap[y][x + e->getDir()]->hasMoved() && _rmap[y][x]->getDir() + _rmap[y][x + e->getDir()]->getDir() != 0)
-			move(_rmap[y][x + e->getDir()], x + e->getDir(), y);
-		else {
-			delete _rmap[y][x + e->getDir()];
-			_rmap[y][x + e->getDir()] = NULL;
-			delete _rmap[y][x];
-			_rmap[y][x] = NULL;
-			_score += 1;
+		if (_rmap[y][x + i - ch] == NULL)
+			return ;
+		if (x + i < 0 || x + i > gMaxWidth - 1)
+		{
+			delete _rmap[y][x + i - ch];
+			_rmap[y][x + i - ch] = NULL;
+			return ;
 		}
-	}
-	else
-	{
-		_rmap[y][x]->setMoved(true);
-		_rmap[y][x + e->getDir()] = _rmap[y][x];
-		_rmap[y][x] = NULL;
+		else if (_rmap[y][x + i] != NULL)
+		{
+			if (_rmap[y][x + i]->getType() == "player") {
+				_player.setAlive(false);
+				return ;
+			}
+			else if (!_rmap[y][x + i]->hasMoved() && e->getDir() * _rmap[y][x + i]->getDir() > 0)
+				move(_rmap[y][x + i], x + i, y);
+			else
+				return handleCollision(&_rmap[y][x + i], &_rmap[y][x + i - ch]);
+		}
+		else
+		{
+			_rmap[y][x + i] = _rmap[y][x + i - ch];
+			_rmap[y][x + i - ch] = NULL;
+			if (i == e->getDir())
+				_rmap[y][x + i]->setMoved(true);
+		}
 	}
 	return ;
 }
 
+void Game::incSpeed() {
+	if (this->_speed < 10)
+		this->_speed++;
+}
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+void Game::decSpeed() {
+	if (_speed > 1)
+		_speed--;
+}
